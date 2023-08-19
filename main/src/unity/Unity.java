@@ -16,14 +16,19 @@ import mindustry.ui.fragments.*;
 import mindustry.world.blocks.environment.*;
 import unity.annotations.Annotations.*;
 import unity.content.*;
+import unity.content.blocks.*;
 import unity.gen.*;
 import unity.graphics.*;
 
+import unity.graphics.menu.*;
 
 import unity.mod.*;
+import unity.net.*;
+import unity.parts.*;
 import unity.ui.*;
 import unity.util.*;
 import unity.world.graph.*;
+import unity.world.systems.*;
 
 import static mindustry.Vars.*;
 
@@ -53,7 +58,7 @@ public class Unity extends Mod{
     public static UnityUI ui= new UnityUI();
 
     /**manages the liquids**/
-    //public static GroundFluidControl groundFluidControl;
+    public static GroundFluidControl groundFluidControl;
 
     /** Default constructor for Mindustry mod loader to instantiate. */
     public Unity(){
@@ -72,7 +77,7 @@ public class Unity extends Mod{
             Events.on(FileTreeInitEvent.class, e -> Core.app.post(UnitySounds::load));
 
             // Disclaimer, because apparently we're stupid enough to need this
-            /**Events.on(ClientLoadEvent.class, e -> {
+            Events.on(ClientLoadEvent.class, e -> {
                 // Might break on mobile
                 try{
                     Reflect.set(MenuFragment.class, Vars.ui.menufrag, "renderer", new UnityMenuRenderer());
@@ -80,7 +85,7 @@ public class Unity extends Mod{
                     Log.err("Failed to replace renderer", ex);
                 }
 
-                /** UnitySettings.init();
+                UnitySettings.init();
                 Vars.ui.showOkText("@mod.disclaimer.title", "@mod.disclaimer.text", () -> {});
 
                 //bc they are not a contentType
@@ -91,6 +96,8 @@ public class Unity extends Mod{
                 for(Faction faction : Faction.all){
                     faction.load();
                 }
+                Graphs.load();
+                UnityParts.loadDoodads();
 
                 if(dev.isDev()){
                     Seq<Server> servers = ReflectUtils.getFieldValue(Vars.ui.join, JoinDialog.class,"servers");
@@ -110,7 +117,7 @@ public class Unity extends Mod{
                     }
 
                 }
-            })**/
+            });
 
             Events.on(FileTreeInitEvent.class, e -> Core.app.post(UnityShaders::load));
 
@@ -158,7 +165,8 @@ public class Unity extends Mod{
         dev.init();
         music.init();
         ui.init();
-        //groundFluidControl = new GroundFluidControl();
+        UnityCalls.registerPackets();;
+        groundFluidControl = new GroundFluidControl();
     }
 
     @Override
@@ -166,20 +174,25 @@ public class Unity extends Mod{
 
 
         Faction.init();
+        UnityItems.load();
         UnityStatusEffects.load();
+        UnityLiquids.load();
         UnityBullets.load();
         UnityUnitTypes.load();
+        KoruhBlocks.load();
+        YoungchaBlocks.load();
+        UnityParts.load();
 
         //below has to be done after all things with faction tags are loaded.
-        /**FactionMeta.init();
-        UnityEntityMapping.init();**/
+        FactionMeta.init();
+        UnityEntityMapping.init();
 
-        //GroundFluidControl.initialiseContent();
+        GroundFluidControl.initialiseContent();
         //logContent();
     }
 
     public void logContent(){
-        /**for(Faction faction : Faction.all){
+        for(Faction faction : Faction.all){
             Seq<Object> array = FactionMeta.getByFaction(faction, Object.class);
             Log.debug("Faction @ has @ contents", faction, array.size);
         }
@@ -201,5 +214,5 @@ public class Unity extends Mod{
                 }
             }
         }
-    **/}
+    }
 }

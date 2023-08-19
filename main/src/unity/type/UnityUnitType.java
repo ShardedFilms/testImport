@@ -62,6 +62,29 @@ public class UnityUnitType extends UnitType{
         rotors.set(mapped);
     }
 
+    @Override
+    public void drawCell(Unit unit){
+        if(unit.isAdded()){
+            if(unit instanceof ModularUnitc){
+                drawModularCell((Unit & ModularUnitc)unit);
+                return;
+            }
+            super.drawCell(unit);
+        }else{
+            if(unit instanceof ModularUnitc){
+                //payloading
+                drawModularBody((Unit & ModularUnitc)unit);
+                drawModularCell((Unit & ModularUnitc)unit);
+                drawWeapons(unit);
+                return;
+            }
+            applyColor(unit);
+
+            Draw.color(cellColor(unit));
+            Draw.rect(payloadCellRegion, unit.x, unit.y, unit.rotation - 90);
+            Draw.reset();
+        }
+    }
 
     @Override
     public void draw(Unit unit){
@@ -76,6 +99,23 @@ public class UnityUnitType extends UnitType{
         //
         //};
         super.drawOutline(unit);
+    }
+    @Override
+    public void drawBody(Unit unit){
+        if(unit instanceof ModularUnitc){
+            drawModularBody((Unit & ModularUnitc)unit);
+            return;
+        }
+        super.drawBody(unit);
+    }
+    @Override
+    public void drawSoftShadow(Unit unit, float alpha){
+        if(unit instanceof ModularUnitc){
+            drawModularBodySoftShadow((Unit & ModularUnitc)unit,alpha);
+            return;
+        }
+        super.drawSoftShadow(unit,alpha);
+
     }
 
     public <T extends Unit & Copterc> void drawRotors(T unit){
@@ -131,4 +171,61 @@ public class UnityUnitType extends UnitType{
         Draw.reset();
     }
 
+    public <T extends Unit & ModularUnitc> void drawModularBodySoftShadow(T unit, float alpha){
+        Draw.color(0, 0, 0, 0.4f * alpha);
+        float rad = 1.6f;
+        float size = unit.hitSize;
+        Draw.rect(softShadowRegion, unit, size * rad * Draw.xscl, size * rad * Draw.yscl, unit.rotation - 90);
+        Draw.color();
+    }
+
+    public <T extends Unit & ModularUnitc> void drawModularBody(T unit){
+        applyColor(unit);
+        DrawTransform dt = new DrawTransform(new Vec2(unit.x,unit.y),unit.rotation);
+        var construct = unit.construct();
+        if(construct!=null){
+            unit.doodadlist().each(d->{
+                d.drawOutline(dt);
+            });
+            construct.hasCustomDraw.each((p) -> {
+                p.type.drawOutline(dt, p, unit);
+            });
+            construct.hasCustomDraw.each((p) -> {
+                p.type.draw(dt, p, unit);
+            });
+            unit.doodadlist().each(d->{
+                d.drawTop(dt);
+            });
+            construct.hasCustomDraw.each((p) -> {
+                p.type.drawTop(dt, p);
+            });
+        }else{
+            if(unit.constructdata()!=null && unit.constructdata().length>0){
+                unit.construct(ModularConstruct.get(unit.constructdata()));
+                UnitDoodadGenerator.initDoodads(unit.construct().parts.length, unit.doodadlist(), unit.construct());
+            }
+        }
+        Draw.reset();
+    }
+    public <T extends Unit & ModularUnitc> void drawModularCell(T  unit){
+        applyColor(unit);
+        Draw.color(cellColor(unit));
+        DrawTransform dt = new DrawTransform(new Vec2(unit.x,unit.y),unit.rotation);
+        var construct = unit.construct();
+        if(construct!=null){
+            construct.hasCustomDraw.each((p) -> {
+                p.type.drawCell(dt, p);
+            });
+        }
+        Draw.reset();
+    }
+
+
+    public Unit spawn(Team t, float x, float y, ModularConstruct data){
+        var unit = this.create(t);
+        unit.set(x, y);
+        ModularConstruct.cache.put(unit,data);
+        unit.add();
+        return unit;
+    }
 }
