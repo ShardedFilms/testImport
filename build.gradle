@@ -1,13 +1,15 @@
 buildscript{
+
+
+    repositories{
+        mavenCentral()
+
+        maven{ url 'https://jitpack.io' }
+    }
     dependencies{
         classpath "com.github.Anuken.MindustryJitpack:core:$mindustryVersion"
         classpath "com.squareup:javapoet:$javapoetVersion"
         classpath "com.github.Anuken:jabel:$jabelVersion"
-    }
-
-    repositories{
-        mavenCentral()
-        maven{ url 'https://jitpack.io' }
     }
 }
 
