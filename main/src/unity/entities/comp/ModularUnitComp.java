@@ -1,18 +1,32 @@
 package unity.entities.comp;
 
 import arc.*;
+import arc.graphics.*;
+import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
-import arc.struct.*;
+import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
-import mindustry.*;
+import arc.struct.*;
+import mindustry.ai.*;
+import mindustry.ai.types.*;
+import mindustry.content.*;
+import mindustry.core.*;
+import mindustry.ctype.*;
+import mindustry.entities.*;
 import mindustry.entities.abilities.*;
 import mindustry.entities.units.*;
 import mindustry.game.EventType.*;
+import mindustry.game.*;
 import mindustry.gen.*;
+import mindustry.graphics.*;
+import mindustry.logic.*;
 import mindustry.type.*;
+import mindustry.ui.*;
 import mindustry.world.*;
+import mindustry.world.blocks.environment.*;
+import mindustry.world.blocks.payloads.*;
 import mindustry.world.blocks.environment.*;
 import unity.annotations.Annotations.*;
 import unity.content.*;
@@ -39,11 +53,14 @@ abstract class ModularUnitComp implements Unitc, ElevationMovec{
     @Import
     boolean dead;
     @Import
-    float health, maxHealth, rotation, armor,drownTime;
+    float x,y,health, maxHealth, rotation, armor,drownTime;
     @Import
     int id;
-    @Import
-    UnitController controller;
+    private UnitController controller;
+    double flag;
+    @Import ItemStack stack;
+
+    @Import Team team;
     @Import
     WeaponMount[] mounts;
     @Import
@@ -58,6 +75,7 @@ abstract class ModularUnitComp implements Unitc, ElevationMovec{
     transient ModularConstruct construct;
     transient boolean constructLoaded = false;
     public transient Seq<PanelDoodad> doodadlist = new Seq<>();
+
     public byte[] constructdata;
     //todo: PREPARE FOR COSMETICS!
     //visuals
@@ -346,6 +364,7 @@ abstract class ModularUnitComp implements Unitc, ElevationMovec{
     @Override
     public void read(Reads read){
         savedHp = health;
+
     }
 
     @Replace
@@ -366,5 +385,64 @@ abstract class ModularUnitComp implements Unitc, ElevationMovec{
        }
        drownTime = Mathf.clamp(drownTime);
     }
+    // TODO : Missing setProp in comp.
+    @Override
+    public void setProp(LAccess prop, double value){
+        switch(prop){
+            case health -> {
+                health = (float)Mathf.clamp(value, 0, maxHealth);
+                if(health <= 0f && !dead){
+                    kill();
+                }
+            }
+            case x -> x = World.unconv((float)value);
+            case y -> y = World.unconv((float)value);
+            case rotation -> rotation = (float)value;
+            case team -> {
+                if(!net.client()){
+                    Team team = Team.get((int)value);
+                    if(controller instanceof Player p){
+                        p.team(team);
+                    }
+                    this.team = team;
+                }
+            }
+            case flag -> flag = value;
+        }
+    }
+    @Override
+    public void setProp(LAccess prop, Object value){
+        switch(prop){
+            case team -> {
+                if(value instanceof Team t && !net.client()){
+                    if(controller instanceof Player p) p.team(t);
+                    team = t;
+                }
+            }
+            case payloadType -> {
+                //only serverside
+                if(((Object)this) instanceof Payloadc pay && !net.client()){
+                    if(value instanceof Block b){
+                        Building build = b.newBuilding().create(b, team());
+                        if(pay.canPickup(build)) pay.addPayload(new BuildPayload(build));
+                    }else if(value instanceof UnitType ut){
+                        Unit unit = ut.create(team());
+                        if(pay.canPickup(unit)) pay.addPayload(new UnitPayload(unit));
+                    }else if(value == null && pay.payloads().size > 0){
+                        pay.payloads().pop();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setProp(UnlockableContent content, double value){
+        if(content instanceof Item item){
+            stack.item = item;
+            stack.amount = Mathf.clamp((int)value, 0, type.itemCapacity);
+        }
+    }
+
 
 }
