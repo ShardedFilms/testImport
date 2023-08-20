@@ -6,4 +6,5 @@ include ':annotations'
 include ':main'
 include ':tools'
 
-rootProject.name = modName
+rootProject.name = 'testimport'
+

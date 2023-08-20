@@ -3,11 +3,11 @@ buildscript{
 
     repositories{
         mavenCentral()
-
+        maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
         maven{ url 'https://jitpack.io' }
     }
     dependencies{
-        classpath "com.github.Anuken.MindustryJitpack:core:$mindustryVersion"
+        classpath "com.github.Anuken.Mindustry:core:$mindustryVersion"
         classpath "com.squareup:javapoet:$javapoetVersion"
         classpath "com.github.Anuken:jabel:$jabelVersion"
     }
@@ -44,6 +44,7 @@ allprojects{
 
     repositories{
         mavenCentral()
+        maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
         maven{ url "https://jitpack.io" }
     }
 
