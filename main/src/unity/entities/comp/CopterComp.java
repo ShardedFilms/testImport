@@ -51,7 +51,7 @@ abstract class CopterComp implements Unitc{
     @Import Team team;
     @Import int id;
 
-    private UnitController controller;
+    @Import UnitController controller;
     double flag;
     @Import ItemStack stack;
 
@@ -88,7 +88,6 @@ abstract class CopterComp implements Unitc{
         }
     }
     // TODO : Missing setProp in comp.
-    @Override
     public void setProp(LAccess prop, double value){
         switch(prop){
             case health -> {
@@ -112,7 +111,6 @@ abstract class CopterComp implements Unitc{
             case flag -> flag = value;
         }
     }
-    @Override
     public void setProp(LAccess prop, Object value){
         switch(prop){
             case team -> {
@@ -138,7 +136,6 @@ abstract class CopterComp implements Unitc{
         }
     }
 
-    @Override
     public void setProp(UnlockableContent content, double value){
         if(content instanceof Item item){
             stack.item = item;
