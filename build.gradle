@@ -6,18 +6,18 @@ buildscript{
 
         maven{ url 'https://jitpack.io' }
     }
-    dependencies{
+    /**dependencies{
         classpath "com.github.Anuken.MindustryJitpack:core:$mindustryVersion"
         classpath "com.squareup:javapoet:$javapoetVersion"
         classpath "com.github.Anuken:jabel:$jabelVersion"
-    }
+    }**/
 }
 
 allprojects{
     apply plugin: 'java'
     apply plugin: 'maven-publish'
 
-    group = 'com.github.AvantTeam'
+    group = 'com.github.ShardedFilms'
     version = modVersion
 
     ext{
