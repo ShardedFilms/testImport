@@ -40,7 +40,7 @@ import static mindustry.logic.GlobalVars.*;
  */
 @SuppressWarnings("unused")
 @EntityComponent
-abstract class CopterComp implements Unitc{
+abstract class CopterComp implements Unitc,Shieldc{
 
     transient RotorMount[] rotors;
     transient float rotorSpeedScl = 1f;
@@ -52,7 +52,7 @@ abstract class CopterComp implements Unitc{
     @Import int id;
 
     @Import UnitController controller;
-    double flag;
+
     @Import ItemStack stack;
 
     @Override
@@ -108,39 +108,17 @@ abstract class CopterComp implements Unitc{
                     this.team = team;
                 }
             }
-            case flag -> flag = value;
-        }
-    }
-    public void setProp(LAccess prop, Object value){
-        switch(prop){
-            case team -> {
-                if(value instanceof Team t && !net.client()){
-                    if(controller instanceof Player p) p.team(t);
-                    team = t;
-                }
-            }
-            case payloadType -> {
-                //only serverside
-                if(((Object)this) instanceof Payloadc pay && !net.client()){
-                    if(value instanceof Block b){
-                        Building build = b.newBuilding().create(b, team());
-                        if(pay.canPickup(build)) pay.addPayload(new BuildPayload(build));
-                    }else if(value instanceof UnitType ut){
-                        Unit unit = ut.create(team());
-                        if(pay.canPickup(unit)) pay.addPayload(new UnitPayload(unit));
-                    }else if(value == null && pay.payloads().size > 0){
-                        pay.payloads().pop();
-                    }
-                }
-            }
-        }
-    }
 
+        }
+    }
     public void setProp(UnlockableContent content, double value){
         if(content instanceof Item item){
             stack.item = item;
             stack.amount = Mathf.clamp((int)value, 0, type.itemCapacity);
         }
     }
+
+    // We mess up something!
+
 
 }

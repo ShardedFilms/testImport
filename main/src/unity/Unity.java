@@ -19,13 +19,12 @@ import unity.content.*;
 import unity.gen.*;
 import unity.graphics.*;
 
-import unity.graphics.menu.*;
 
 import unity.mod.*;
-import unity.parts.*;
-import unity.ui.*;
+//import unity.parts.*;
+//import unity.ui.*;
 import unity.util.*;
-import unity.world.graph.*;
+//import unity.world.graph.*;
 //import unity.world.systems.*;
 
 import static mindustry.Vars.*;
@@ -53,7 +52,7 @@ public class Unity extends Mod{
     public static Seq<String> packages = Seq.with();
 
     /**UI**/
-    public static UnityUI ui= new UnityUI();
+    //public static UnityUI ui= new UnityUI();
 
     /**manages the liquids**/
     //public static GroundFluidControl groundFluidControl;
@@ -119,7 +118,7 @@ public class Unity extends Mod{
         UnityUnitTypes.load();
         //KoruhBlocks.load();
         //YoungchaBlocks.load();
-        UnityParts.load();
+       //UnityParts.load();
 
         //below has to be done after all things with faction tags are loaded.
         FactionMeta.init();

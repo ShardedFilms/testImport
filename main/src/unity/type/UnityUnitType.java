@@ -11,8 +11,8 @@ import mindustry.type.*;
 import unity.entities.*;
 import unity.entities.Rotor.*;
 import unity.gen.*;
-import unity.parts.*;
-import unity.parts.types.*;
+//import unity.parts.*;
+//import unity.parts.types.*;
 import unity.util.*;
 
 import static mindustry.Vars.headless;
