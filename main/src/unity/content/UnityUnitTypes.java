@@ -25,6 +25,7 @@ import unity.entities.bullet.energy.*;
 import unity.entities.bullet.laser.*;
 import unity.entities.bullet.physical.*;
 import unity.gen.*;
+import unity.gen.*;
 import unity.graphics.*;
 import unity.type.*;
 import unity.type.weapons.*;
@@ -74,6 +75,7 @@ public final class UnityUnitTypes{
             flying = true;
             hitSize = 12f;
             range = 140f;
+
 
             weapons.add(new Weapon(name + "-gun"){{
                 layerOffset = -0.01f;

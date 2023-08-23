@@ -1,38 +1,24 @@
 package unity.entities.comp;
 
-import arc.*;
-import arc.graphics.*;
-import arc.graphics.g2d.*;
 import arc.math.*;
-import arc.math.geom.*;
-import arc.scene.ui.layout.*;
 import arc.util.*;
-import mindustry.ai.*;
-import mindustry.ai.types.*;
-import mindustry.content.*;
-import mindustry.core.*;
-import mindustry.ctype.*;
-import mindustry.entities.*;
-import mindustry.entities.abilities.*;
-import mindustry.entities.units.*;
-import mindustry.game.EventType.*;
-import mindustry.game.*;
+import mindustry.content.Fx;
+import mindustry.core.World;
+import mindustry.ctype.UnlockableContent;
+import mindustry.entities.units.UnitController;
+import mindustry.game.Team;
 import mindustry.gen.*;
-import mindustry.graphics.*;
-import mindustry.logic.*;
+import mindustry.logic.LAccess;
 import mindustry.type.*;
-import mindustry.ui.*;
-import mindustry.world.*;
-import mindustry.world.blocks.environment.*;
-import mindustry.world.blocks.payloads.*;
+import mindustry.world.Block;
+import mindustry.world.blocks.payloads.BuildPayload;
+import mindustry.world.blocks.payloads.UnitPayload;
 import unity.annotations.Annotations.*;
 import unity.entities.*;
 import unity.entities.Rotor.*;
 import unity.type.*;
 
 import static mindustry.Vars.*;
-import static mindustry.Vars.*;
-import static mindustry.logic.GlobalVars.*;
 
 /**
  * @author GlennFolker
@@ -40,21 +26,18 @@ import static mindustry.logic.GlobalVars.*;
  */
 @SuppressWarnings("unused")
 @EntityComponent
-abstract class CopterComp implements Unitc,Shieldc{
-
+abstract class CopterComp implements Unitc{
     transient RotorMount[] rotors;
     transient float rotorSpeedScl = 1f;
 
     @Import UnitType type;
     @Import boolean dead;
-    @Import float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, shield, ammo, dragMultiplier;
-    @Import Team team;
+    @Import float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, ammo, dragMultiplier;
     @Import int id;
-
+    @Import double flag=0;
     @Import UnitController controller;
-
+    @Import Team team;
     @Import ItemStack stack;
-
     @Override
     public void add(){
         UnityUnitType type = (UnityUnitType)this.type;
@@ -87,15 +70,11 @@ abstract class CopterComp implements Unitc,Shieldc{
             rotor.rotorShadeRot %= 360f;
         }
     }
-    // TODO : Missing setProp in comp.
+
+    @Override
     public void setProp(LAccess prop, double value){
         switch(prop){
-            case health -> {
-                health = (float)Mathf.clamp(value, 0, maxHealth);
-                if(health <= 0f && !dead){
-                    kill();
-                }
-            }
+            case health -> health = (float)Mathf.clamp(value, 0, maxHealth);
             case x -> x = World.unconv((float)value);
             case y -> y = World.unconv((float)value);
             case rotation -> rotation = (float)value;
@@ -108,17 +87,42 @@ abstract class CopterComp implements Unitc,Shieldc{
                     this.team = team;
                 }
             }
+            case flag -> flag = value;
+        }
+    }
+
+    @Override
+    public void setProp(LAccess prop, Object value){
+        switch(prop){
 
         }
     }
+
+    @Override
     public void setProp(UnlockableContent content, double value){
         if(content instanceof Item item){
             stack.item = item;
             stack.amount = Mathf.clamp((int)value, 0, type.itemCapacity);
         }
     }
-
-    // We mess up something!
-
-
+@Override
+    public void rawDamage(float amount) {
+        boolean hadShields = shield > 1.0E-4F;
+        if (hadShields) {
+            shieldAlpha = 1.0F;
+        }
+        float shieldDamage = Math.min(Math.max(shield, 0), amount);
+        shield -= shieldDamage;
+        hitTime = 1.0F;
+        amount -= shieldDamage;
+        if (amount > 0 && type.killable) {
+            health -= amount;
+            if (health <= 0 && !dead) {
+                kill();
+            }
+            if (hadShields && shield <= 1.0E-4F) {
+                Fx.unitShieldBreak.at(x, y, 0, team.color, this);
+            }
+        }
+    }
 }
