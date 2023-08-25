@@ -2,6 +2,7 @@ package unity.entities.comp;
 
 import arc.math.*;
 import arc.util.*;
+import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.core.World;
 import mindustry.ctype.UnlockableContent;
@@ -91,11 +92,45 @@ abstract class CopterComp implements Unitc{
         }
     }
 
-    @Override
-    public void setProp(LAccess prop, Object value){
-        switch(prop){
+    public void setProp(LAccess prop, Object value) {
+        switch (prop) {
+            case team:
+                if (value instanceof Team) {
+                    Team t = (Team)value;
+                    if (!Vars.net.client()) {
+                        UnitController var9 = this.controller;
+                        if (var9 instanceof Player) {
+                            Player p = (Player)var9;
+                            p.team(t);
+                        }
 
+                        this.team = t;
+                    }
+                }
+                break;
+            case payloadType:
+                if (this instanceof Payloadc) {
+                    Payloadc pay = (Payloadc)this;
+                    if (!Vars.net.client()) {
+                        if (value instanceof Block bl) {
+                            Block b = (Block)value;
+                            Building build = b.newBuilding().create(b, this.team());
+                            if (pay.canPickup(build)) {
+                                pay.addPayload(new BuildPayload(build));
+                            }
+                        } else if (value instanceof UnitType) {
+                            UnitType ut = (UnitType)value;
+                            Unit unit = ut.create(this.team());
+                            if (pay.canPickup(unit)) {
+                                pay.addPayload(new UnitPayload(unit));
+                            }
+                        } else if (value == null && pay.payloads().size > 0) {
+                            pay.dropLastPayload();
+                        }
+                    }
+                }
         }
+
     }
 
     @Override
@@ -103,26 +138,6 @@ abstract class CopterComp implements Unitc{
         if(content instanceof Item item){
             stack.item = item;
             stack.amount = Mathf.clamp((int)value, 0, type.itemCapacity);
-        }
-    }
-@Override
-    public void rawDamage(float amount) {
-        boolean hadShields = shield > 1.0E-4F;
-        if (hadShields) {
-            shieldAlpha = 1.0F;
-        }
-        float shieldDamage = Math.min(Math.max(shield, 0), amount);
-        shield -= shieldDamage;
-        hitTime = 1.0F;
-        amount -= shieldDamage;
-        if (amount > 0 && type.killable) {
-            health -= amount;
-            if (health <= 0 && !dead) {
-                kill();
-            }
-            if (hadShields && shield <= 1.0E-4F) {
-                Fx.unitShieldBreak.at(x, y, 0, team.color, this);
-            }
         }
     }
 }

@@ -4,6 +4,7 @@ import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import com.squareup.javapoet.*;
+import com.sun.source.util.Trees;
 import com.sun.tools.javac.api.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Attribute.*;
@@ -17,6 +18,8 @@ import javax.lang.model.*;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.*;
 import java.io.*;
 import java.lang.Class;
@@ -36,7 +39,11 @@ public abstract class BaseProcessor extends AbstractProcessor{
     public static final String packageName = "unity.gen";
 
     public JavacElements elements;
+
+    public static Elements elementu;
+    public static Types typeu;
     public JavacTrees trees;
+    public static Trees strees;
     public JavacTypes types;
     public JavacFiler filer;
     public static Fi rootDir;
