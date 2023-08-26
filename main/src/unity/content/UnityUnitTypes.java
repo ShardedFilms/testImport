@@ -25,7 +25,6 @@ import unity.entities.bullet.energy.*;
 import unity.entities.bullet.laser.*;
 import unity.entities.bullet.physical.*;
 import unity.gen.*;
-import unity.gen.*;
 import unity.graphics.*;
 import unity.type.*;
 import unity.type.weapons.*;

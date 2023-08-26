@@ -97,7 +97,7 @@ public class UnitProcessor implements Processor{
 
             if(unit instanceof Mechc) outliner.get(type.legRegion);
 
-            if(unit instanceof Copterc){
+
                 for(var rotor : type.rotors){
                     GenRegion region = conv(rotor.bladeRegion);
 
@@ -131,7 +131,7 @@ public class UnitProcessor implements Processor{
 
                     rotor.load();
                 }
-            }
+
 
             Pixmap icon = Pixmaps.outline(new PixmapRegion(conv(type.region).pixmap()), type.outlineColor, type.outlineRadius);
             add.get(conv(type.region), type.name, icon.copy());

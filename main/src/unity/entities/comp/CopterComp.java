@@ -27,18 +27,24 @@ import static mindustry.Vars.*;
  */
 @SuppressWarnings("unused")
 @EntityComponent
-abstract class CopterComp implements Unitc{
+abstract class CopterComp implements Unitc,Shieldc,Posc{
     transient RotorMount[] rotors;
     transient float rotorSpeedScl = 1f;
 
     @Import UnitType type;
     @Import boolean dead;
-    @Import float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, ammo, dragMultiplier;
+    @Import float x, y, rotation, elevation, maxHealth, drag, armor, hitSize, health, ammo, dragMultiplier,hitTime;
     @Import int id;
     @Import double flag=0;
     @Import UnitController controller;
     @Import Team team;
     @Import ItemStack stack;
+
+    /** Absorbs health damage. */
+    @Import float shield;
+    /** Subtracts an amount from damage. No need to save. */
+
+    @Import float shieldAlpha = 0f;
     @Override
     public void add(){
         UnityUnitType type = (UnityUnitType)this.type;
@@ -93,43 +99,6 @@ abstract class CopterComp implements Unitc{
     }
 
     public void setProp(LAccess prop, Object value) {
-        switch (prop) {
-            case team:
-                if (value instanceof Team) {
-                    Team t = (Team)value;
-                    if (!Vars.net.client()) {
-                        UnitController var9 = this.controller;
-                        if (var9 instanceof Player) {
-                            Player p = (Player)var9;
-                            p.team(t);
-                        }
-
-                        this.team = t;
-                    }
-                }
-                break;
-            case payloadType:
-                if (this instanceof Payloadc) {
-                    Payloadc pay = (Payloadc)this;
-                    if (!Vars.net.client()) {
-                        if (value instanceof Block bl) {
-                            Block b = (Block)value;
-                            Building build = b.newBuilding().create(b, this.team());
-                            if (pay.canPickup(build)) {
-                                pay.addPayload(new BuildPayload(build));
-                            }
-                        } else if (value instanceof UnitType) {
-                            UnitType ut = (UnitType)value;
-                            Unit unit = ut.create(this.team());
-                            if (pay.canPickup(unit)) {
-                                pay.addPayload(new UnitPayload(unit));
-                            }
-                        } else if (value == null && pay.payloads().size > 0) {
-                            pay.dropLastPayload();
-                        }
-                    }
-                }
-        }
 
     }
 
@@ -140,4 +109,6 @@ abstract class CopterComp implements Unitc{
             stack.amount = Mathf.clamp((int)value, 0, type.itemCapacity);
         }
     }
+
+
 }
